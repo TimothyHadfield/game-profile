@@ -1,0 +1,9 @@
+{
+  "name": "game-profile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local player profile, stats, Elo vs computer levels, achievements and a daily game for Tim's board game sites.",
+  "scripts": {
+    "test": "node --test test/profile.test.mjs"
+  }
+}

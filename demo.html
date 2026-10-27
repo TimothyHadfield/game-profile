@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Game Profile demo</title>
+<link rel="stylesheet" href="profile.css">
+<style>
+  :root {
+    --bg: #0f1117; --bg-soft: #161923; --card: #1a1e2b; --card-hover: #212636; --line: #2a3042;
+    --text: #e8eaf0; --muted: #969db4; --accent: #6ea8fe; --good: #6ee7a8; --bad: #f08c8c; --radius: 12px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.35 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 900px; margin: 0 auto; padding: 14px 16px 40px; display: grid; gap: 14px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  h1 { font-size: 18px; margin: 0; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 8px; }
+  section { background: var(--card); border-radius: var(--radius); padding: 12px 14px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 6px; }
+  button.s, .pf-open { font: inherit; font-size: 13.5px; font-weight: 600; padding: 8px 10px; border-radius: 9px; border: 1px solid var(--line); background: var(--bg-soft); color: var(--text); }
+  button.s:active { background: var(--card-hover); }
+  #out { font: 12.5px/1.4 ui-monospace, Consolas, monospace; color: var(--muted); white-space: pre-wrap; margin: 0; }
+</style>
+</head>
+<body>
+<main>
+  <header><h1>Game Profile demo</h1><button class="pf-open" id="me" type="button"></button></header>
+  <section><h2>Record a result vs the computer</h2><div class="grid" id="levels"></div></section>
+  <section><h2>Other</h2><div class="grid">
+    <button class="s" data-x="friends">2-player game</button>
+    <button class="s" data-x="daily">Daily game (win)</button>
+    <button class="s" data-x="day">Pretend: next day</button>
+    <button class="s" data-x="reset">Reset stats</button>
+  </div></section>
+  <section><h2>Last result</h2><pre id="out">–</pre></section>
+</main>
+<script src="profile.js"></script>
+<script>
+  let shift = 0;
+  const levels = [
+    { id: 'beginner', name: 'Beginner', rating: 800 }, { id: 'easy', name: 'Easy', rating: 1200 },
+    { id: 'medium', name: 'Medium', rating: 1500 }, { id: 'strong', name: 'Strong', rating: 1700 }, { id: 'perfect', name: 'Perfect', rating: 2100 },
+  ];
+  Profile.init({
+    game: 'demo', levels,
+    achievements: [
+      { id: 'first', title: 'First win', desc: 'Win a game', test: c => c.stats.wins >= 1 },
+      { id: 'three', title: 'Hat trick', desc: 'Win 3 in a row', test: c => c.stats.bestStreak >= 3 },
+      { id: 'perfect', title: 'Giant killer', desc: 'Beat Perfect', test: c => !!(c.last && c.last.won && c.last.level === 'perfect') },
+      { id: 'ten', title: 'Regular', desc: 'Play 10 games', test: c => c.stats.games >= 10 },
+      { id: 'daily3', title: 'Every day', desc: '3-day daily streak', test: c => c.daily.streak >= 3 },
+    ],
+    modes: { friends: { name: '2 players' } },
+    daily: { title: 'Daily game', onPlay: () => rec({ level: 'medium', won: true, daily: true }) },
+    now: () => new Date(Date.now() + shift * 864e5),
+    onChange: what => { if (what === 'me' || what === 'import') paintMe(); },
+  });
+  const out = document.getElementById('out');
+  const rec = o => { out.textContent = JSON.stringify(Profile.recordResult(o), null, 1); };
+  function paintMe() { document.getElementById('me').innerHTML = Profile.avatarSVG(Profile.avatar, 28) + 'My stats'; }
+  paintMe();
+  document.getElementById('me').onclick = () => Profile.openPanel();
+  document.getElementById('levels').innerHTML = levels.map(l => `<button class="s" data-l="${l.id}" data-r="w">Win · ${l.name}</button><button class="s" data-l="${l.id}" data-r="l">Lose · ${l.name}</button>`).join('');
+  document.addEventListener('click', e => {
+    const b = e.target.closest('button.s'); if (!b) return;
+    if (b.dataset.l) rec({ mode: 'computer', level: b.dataset.l, won: b.dataset.r === 'w' });
+    const x = b.dataset.x;
+    if (x === 'friends') rec({ mode: 'friends', won: null });
+    if (x === 'daily') rec({ level: 'medium', won: true, daily: true });
+    if (x === 'day') { shift++; out.textContent = 'Now pretending it is ' + Profile.daily.date(); }
+    if (x === 'reset') { Profile.reset(); out.textContent = 'Reset.'; }
+  });
+</script>
+</body>
+</html>
