@@ -1,6 +1,6 @@
 {
   "name": "game-profile",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Local player profile, stats, Elo vs computer levels, achievements and a daily game for Tim's board game sites.",
   "scripts": {

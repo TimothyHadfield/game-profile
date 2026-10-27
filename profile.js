@@ -6,7 +6,7 @@
 (function (G) {
 'use strict';
 if (G.Profile && G.Profile.version) return;
-const VERSION = '1.0.0';
+const VERSION = '1.0.1';
 const ID_KEY = 'profile:me';              // name + avatar, shared by all games on this site
 const gameKey = g => 'profile:' + g;      // one stats record per game
 const START = 1200, K_NEW = 40, K = 24, NEW_GAMES = 10, FLOOR = 100;
@@ -192,7 +192,8 @@ function recordResult(o) {
   const unlocked = checkAchievements(last);
   saveStats();
   emit('result');
-  if (unlocked.length && cfg.toast && !o.quiet) unlocked.forEach((a, i) => setTimeout(() => banner(a), 900 + i * 2600));
+  // one banner per game, however many unlocked (the rest are named in the panel)
+  if (unlocked.length && cfg.toast && !o.quiet) setTimeout(() => banner(unlocked[0], unlocked.length - 1), 900);
   if (unlocked.length && typeof cfg.onUnlock === 'function') unlocked.forEach(a => { try { cfg.onUnlock(a); } catch (e) { /* ignore */ } });
   return { unlocked, elo, streak: st.streak, daily: dailyNew ? dailyInfo() : null };
 }
@@ -246,13 +247,13 @@ const icons = {
   close: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
   medal: (on) => `<svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M8 2h3l2 6H10zM13 2h3l-2 6h-3z" fill="${on ? '#c9473f' : '#4a4f60'}"/><circle cx="12" cy="15" r="6.5" fill="${on ? '#e8b53a' : '#3a3f4f'}" stroke="${on ? '#9c7414' : '#2a2e3a'}" stroke-width="1.2"/><path d="m12 11.3 1.1 2.3 2.5.3-1.8 1.7.5 2.5-2.3-1.2-2.3 1.2.5-2.5-1.8-1.7 2.5-.3z" fill="${on ? '#fff6d8' : '#4d5263'}"/></svg>`,
 };
-function banner(a) {
+function banner(a, more) {
   if (!hasDoc()) return;
   const doc = G.document;
   const el = doc.createElement('div');
   el.className = 'pf-banner';
   el.setAttribute('role', 'status');
-  el.innerHTML = `${icons.medal(true)}<span><small>Achievement</small>${esc(a.title)}</span>`;
+  el.innerHTML = `${icons.medal(true)}<span><small>Achievement${more ? 's' : ''}</small>${esc(a.title)}${more ? ` <em>+${more} more</em>` : ''}</span>`;
   doc.body.appendChild(el);
   try { if (G.FX && G.FX.play) G.FX.play('ding', { cat: 'celebrations' }); } catch (e) { /* ignore */ }
   setTimeout(() => el.classList.add('out'), 2300);

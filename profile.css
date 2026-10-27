@@ -117,6 +117,7 @@
 }
 .pf-banner span { display: flex; flex-direction: column; min-width: 0; }
 .pf-banner small { font: 500 11.5px/1.2 system-ui, sans-serif; color: #e8b53a; text-transform: uppercase; letter-spacing: .05em; }
+.pf-banner em { font-style: normal; font-weight: 500; color: #cdbb98; }
 .pf-banner.out { opacity: 0; transform: translate(-50%, -12px); }
 @keyframes pf-drop { from { transform: translate(-50%, -24px); opacity: 0; } }
 

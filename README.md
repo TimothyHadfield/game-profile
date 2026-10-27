@@ -85,6 +85,9 @@ break the page.
 
 ## 3. Changelog
 
+- **1.0.1** (2026-10-27): one banner per game however many achievements unlock ("First win +3 more").
+  Pilot game Connect Four uses it (button in the table's top-left corner, Daily game in New game).
+
 - **1.0.0** (2026-10-27): first version. Name + 16 original avatars, per-game stats per mode and
   level, streaks, local Elo vs computer levels, achievements with banner, Daily helper
   (date-seeded RNG, played today, daily streak, 14-day strip), My stats panel (phone / laptop /
