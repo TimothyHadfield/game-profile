@@ -37,6 +37,7 @@ Profile.init({
   achievements: [{ id, title, desc, test: ctx => bool }, ...], // test may throw: treated as false
   modes: { friends: { name: "2 players" }, online: { name: "Online" } },  // names in the panel; { hide: true } hides one
   daily: { title: "Daily game", onPlay: () => startDaily() },  // omit for no Daily tab
+  draws: true | false,                // "Drawn" columns; omit = shown only once a draw is recorded
   name: "Tim",                        // used only if the profile has no name yet
   toast: true,                        // show the achievement banner (plays FX "ding" if game-fx is loaded)
   onUnlock: a => {}, onChange: what => {},   // what: result | me | import | reset | open | close
@@ -84,6 +85,10 @@ fields dropped, at most 30 recent games and 120 daily days), so a hand-edited or
 break the page.
 
 ## 3. Changelog
+
+- **1.1.0** (2026-10-27): no empty "Vs the computer" heading for games without computer levels
+  (Wavelength); "Drawn" columns hidden in games that can't draw (Clue): `init({ draws })`, by default
+  shown only once a draw is recorded. Games already using 1.0.x need no code change.
 
 - **1.0.1** (2026-10-27): one banner per game however many achievements unlock ("First win +3 more").
   Pilot game Connect Four uses it (button in the table's top-left corner, Daily game in New game).

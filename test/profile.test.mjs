@@ -172,3 +172,30 @@ test('level ratings: unknown level is not rated', () => {
   assert.equal(P.levelRating('perfect'), 2100);
   assert.equal(P.levelRating('godlike'), null);
 });
+
+// Panel HTML (no DOM): the parts a game doesn't use are hidden.
+const html = () => P._.panelHTML();
+test('panel: no "Vs the computer" heading when the game has no computer levels', () => {
+  fresh({ levels: [] });
+  P.recordResult({ mode: 'friends', won: null });
+  assert.ok(!/Vs the computer/.test(html()), 'empty computer section is hidden');
+  assert.ok(/Other games/.test(html()), 'other modes still listed');
+  fresh();
+  assert.ok(/Vs the computer/.test(html()), 'shown when the game has levels');
+});
+
+test('panel: Drawn hidden for games that never draw, shown once a draw is recorded or when asked', () => {
+  const drawCols = h => [/<small>Drawn<\/small>/.test(h), /<th>D<\/th>/.test(h)];
+  fresh();
+  P.recordResult({ mode: 'computer', level: 'beginner', won: true });
+  assert.deepEqual(drawCols(html()), [false, false], 'auto: no draws yet, no Drawn column');
+  P.recordResult({ mode: 'computer', level: 'beginner', draw: true });
+  assert.deepEqual(drawCols(html()), [true, true], 'auto: a draw recorded shows it');
+  fresh({ draws: true });
+  assert.deepEqual(drawCols(html()), [true, true], 'draws: true always shows it');
+  fresh({ draws: false });
+  P.recordResult({ mode: 'computer', level: 'beginner', draw: true });
+  assert.deepEqual(drawCols(html()), [false, false], 'draws: false always hides it');
+  P.recordResult({ mode: 'friends', won: true });
+  assert.ok(/1–0/.test(html()) && !/1–0–0/.test(html()), 'other modes show W–L without draws');
+});
